@@ -113,5 +113,8 @@ def main(stdscr):
             return
 
 
-curses.wrapper(main)
-curses.endwin()
+try:
+    curses.wrapper(main)
+except KeyboardInterrupt:
+    curses.endwin()
+    print("ctrl-c recieved, exiting...")
