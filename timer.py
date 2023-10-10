@@ -123,7 +123,7 @@ def timer(stdscr, args):
 
         listener.join()
 
-        database.write(format_timer(time.time() - start, decimals), scramble_alg)
+        database.write(time.time() - start, scramble_alg)
         scramble_alg = False
 
 
