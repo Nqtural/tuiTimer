@@ -16,7 +16,7 @@ def turn_timer_green(time, stdscr, timer, decimals, height, width):
             break
         time.sleep(0.1)
     stdscr.clear()
-    stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals))) / 2), format_timer(timer_time, decimals), curses.color_pair(3))
+    stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals))) / 2), format_timer(timer_time, decimals), curses.color_pair(4))
     stdscr.refresh()
 
 
@@ -50,10 +50,6 @@ def timer(stdscr, args):
 
     height, width = stdscr.getmaxyx()
 
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-
     global scramble_alg
     global stop_timer
     global timer_time
@@ -76,7 +72,7 @@ def timer(stdscr, args):
         if stop_timer: break
 
         stdscr.clear()
-        stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals))) / 2), format_timer(timer_time, decimals), curses.color_pair(2))
+        stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals))) / 2), format_timer(timer_time, decimals), curses.color_pair(3))
         stdscr.refresh()
 
         thread = threading.Thread(target=turn_timer_green, args=(time, stdscr, timer_time, decimals, height, width))
