@@ -14,7 +14,13 @@ python main.py
 Currently, there are no ways of configuring this program. There will be configuration options later.
 
 ## Usage
-* `F1`, `F2`, `F3` for switching tabs.
-* Hold `space` in the timer tab until timer turns green and then release to start timer. Stop by pressing `space` again.
+### General
+* Use `F1`, `F2`, `F3` and `F4` for switching tabs.
 * Press `ctrl` + `c` to exit
+### Timer
+* Hold `space` in the timer tab until timer turns green and then release to start timer. Stop by pressing `space` again.
+### Solves
+* `+` will toggle +2 in the solves tab.
+* `delete` and `backspace` will prompt you to delete the active solve. `y` confirms deletion.
+### Algorithms
 * Arrow keys `left` and `right` switches to the previous and next algorithm page respectively. `space` and arrow keys `up` and `down` switches between OLL and PLL algorithms.
