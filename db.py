@@ -31,4 +31,7 @@ class Database:
 
     def read(self, last=15):
         self.cur.execute("SELECT * FROM solves")
-        return self.cur.fetchall()[-last:]
+        if last > 0:
+            return self.cur.fetchall()[-last:]
+        else:
+            return self.cur.fetchall()
