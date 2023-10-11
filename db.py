@@ -3,7 +3,7 @@ class Database:
     from datetime import datetime
 
     def get_date(self):
-        return self.datetime.now().strftime('%Y%m%d%H%M%S')
+        return self.datetime.now().strftime("%Y%m%d%H%M%S")
 
     def new_session(self, sessions_dir="sessions"):
         # Make sessions directory if it does not already exist

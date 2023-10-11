@@ -2,6 +2,7 @@ import curses
 import time
 import threading
 import re
+from datetime import datetime
 from pynput import keyboard
 from chart import get_chart
 from timer import timer
@@ -34,7 +35,6 @@ except ModuleNotFoundError:
             "red": (196, 0)
         }
     }
-
 
 
 scramble_alg = None
@@ -224,6 +224,20 @@ def confirm_deletion(key):
             return False
 
 
+def format_date(date):
+    difference = datetime.now() - datetime.strptime(date, "%Y%m%d%H%M%S")
+    if difference.days:
+        return f"{difference.days} days ago"
+    elif int(difference.seconds / 3600):
+        return f"{int(difference.seconds / 3600)} hours ago"
+    elif int(difference.seconds / 60):
+        return f"{int(difference.seconds / 60)} minutes ago"
+    elif difference.seconds > 10:
+        return f"{difference.seconds} seconds ago"
+    else:
+        return "Now"
+
+
 def solves(mainwin, args):
     height, width = mainwin.getmaxyx()
     x = [int(width / 4) * i for i in range(0, 3)] + [width]
@@ -246,7 +260,7 @@ def solves(mainwin, args):
                 mainwin.addstr(i + 2, 0, " " * width, curses.color_pair(5))
                 active_id = solve[0]
             mainwin.addstr(
-                i + 2, x[0], str(solve[1]),
+                i + 2, x[0], format_date(str(solve[1])),
                 curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
             mainwin.addstr(
                 i + 2, x[1], f"{solve[2]:.3f}",
