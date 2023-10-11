@@ -6,6 +6,7 @@ from datetime import datetime
 from pynput import keyboard
 from chart import get_chart
 from timer import timer
+from timer import format_timer
 from algorithms import algorithms_map
 from db import Database
 try:
@@ -263,7 +264,7 @@ def solves(mainwin, args):
                 i + 2, x[0], format_date(str(solve[1])),
                 curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
             mainwin.addstr(
-                i + 2, x[1], f"{solve[2]:.3f}",
+                i + 2, x[1], format_timer(solve[2], args["decimals"]),
                 curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
             mainwin.addstr(
                 i + 2, x[2], "Yes" if solve[4] else "No",
@@ -401,6 +402,7 @@ def main(stdscr):
                 "database": database})
         elif key == curses.KEY_F2:
             tabs.switch_to("solves", mainwin, args={
+                "decimals": config["timer"]["decimals"],
                 "database": database})
         elif key == curses.KEY_F3:
             tabs.switch_to("chart", mainwin, args={
