@@ -7,6 +7,34 @@ from chart import get_chart
 from timer import timer
 from algorithms import algorithms_map
 from db import Database
+try:
+    from config import config
+except ModuleNotFoundError:
+    config = {
+        "timer": {
+            "cover": False,
+            "decimals": 3
+        },
+        "solves": {
+            "confirm-deletion": True
+        },
+        "colors-ui": {
+            "default": (7, 0),
+            "tab-active": (1, 0),
+            "timer-primed": (1, 0),
+            "timer-ready": (2, 0),
+            "active-solve": (0, 6)
+        },
+        "colors-cube": {
+            "black": (244, 0),
+            "yellow": (226, 0),
+            "green": (46, 0),
+            "blue": (21, 0),
+            "orange": (172, 0),
+            "red": (196, 0)
+        }
+    }
+
 
 
 scramble_alg = None
@@ -306,29 +334,29 @@ def main(stdscr):
     stdscr.refresh()
 
     # Normal
-    curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
+    curses.init_pair(1, *config["colors-ui"]["default"])
     # Tab active
-    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(2, *config["colors-ui"]["tab-active"])
     # Timer primed
-    curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(3, *config["colors-ui"]["timer-primed"])
     # Timer ready
-    curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(4, *config["colors-ui"]["timer-ready"])
     # Active solve
-    curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_CYAN)
+    curses.init_pair(5, *config["colors-ui"]["active-solve"])
 
     # Cube color
     # Black
-    curses.init_pair(6, 244, curses.COLOR_BLACK)
+    curses.init_pair(6, *config["colors-cube"]["black"])
     # Yellow
-    curses.init_pair(7, 226, curses.COLOR_BLACK)
+    curses.init_pair(7, *config["colors-cube"]["yellow"])
     # Green
-    curses.init_pair(8, 46, curses.COLOR_BLACK)
+    curses.init_pair(8, *config["colors-cube"]["green"])
     # Blue
-    curses.init_pair(9, 21, curses.COLOR_BLACK)
+    curses.init_pair(9, *config["colors-cube"]["blue"])
     # Orange
-    curses.init_pair(10, 172, curses.COLOR_BLACK)
+    curses.init_pair(10, *config["colors-cube"]["orange"])
     # Red
-    curses.init_pair(11, 196, curses.COLOR_BLACK)
+    curses.init_pair(11, *config["colors-cube"]["red"])
 
     height, width = stdscr.getmaxyx()
 
@@ -340,16 +368,16 @@ def main(stdscr):
 
     mainwin.refresh()
     tabs.switch_to("timer", mainwin, args={
-        "cover": False,
-        "decimals": 3,
+        "cover": config["timer"]["cover"],
+        "decimals": config["timer"]["decimals"],
         "database": database
     })
     while 1:
         key = stdscr.getch()
         if key == curses.KEY_F1:
             tabs.switch_to("timer", mainwin, args={
-                "cover": False,
-                "decimals": 3,
+                "cover": config["timer"]["cover"],
+                "decimals": config["timer"]["decimals"],
                 "database": database})
         elif key == curses.KEY_F2:
             tabs.switch_to("solves", mainwin, args={
