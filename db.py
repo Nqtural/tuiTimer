@@ -52,3 +52,7 @@ class Database:
             return self.cur.fetchall()[-last:]
         else:
             return self.cur.fetchall()
+
+    def delete(self, id):
+        self.cur.execute("DELETE FROM solves WHERE id = ?", (id,))
+        self.con.commit()

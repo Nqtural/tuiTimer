@@ -13,6 +13,8 @@ scramble_alg = None
 stop_algorithm_listener = False
 stop_solve_listener = False
 toggle_plustwo_bool = False
+delete_active_solve = False
+delete_solve_confirmed = False
 active_solve = 0
 algorithm_page = ["OLL", "Awkward Shape"]
 last_oll_page = "Awkward Shape"
@@ -69,7 +71,7 @@ def replace_icon(icon):
     string = icon[0].replace("v", "▄▄").replace(">", " █").replace("f", "██").replace("<", "█ ").replace("^", "▀▀")
     # string = icon[0].replace("v", "▒▒").replace(">", "▒▒").replace("f", "██").replace("<", "▒▒").replace("^", "▒▒")
     color = curses.color_pair(1)
-    if icon[1] == "b":
+    if icon[1] == "b": 
         color = curses.color_pair(6)
     elif icon[1] == "y":
         color = curses.color_pair(7)
@@ -177,10 +179,25 @@ def solve_keybinds(key):
         elif key == keyboard.Key.up:
             active_solve += -1
             return False
+        elif key == keyboard.Key.delete or key == keyboard.Key.backspace:
+            global delete_active_solve
+            delete_active_solve = True
+            return False
+
+
+def confirm_deletion(key):
+    try:
+        if key.char.lower() == "y":
+            global delete_solve_confirmed
+            delete_solve_confirmed = True
+        return False
+    except AttributeError:
+        if key == keyboard.Key.esc:
+            return False
 
 
 def solves(mainwin, args):
-    y, width = mainwin.getmaxyx()
+    height, width = mainwin.getmaxyx()
     x = [int(width / 4) * i for i in range(0, 3)] + [width]
     global stop_solve_listener
     global active_solve
@@ -221,8 +238,25 @@ def solves(mainwin, args):
 
         global toggle_plustwo_bool
         if toggle_plustwo_bool:
-            args["database"].toggle_plustwo(active_id)
+            try:
+                args["database"].toggle_plustwo(active_id)
+            except UnboundLocalError: pass # There are no solves in current session
             toggle_plustwo_bool = False
+
+        global delete_active_solve
+        if delete_active_solve and solves:
+            mainwin.addstr(height - 1, 0, "Press 'y' to confirm deletion: ")
+            mainwin.refresh()
+            curses.curs_set(1)
+            with keyboard.Listener(
+                on_press=confirm_deletion) as listener:
+                listener.join()
+            global delete_solve_confirmed
+            if delete_solve_confirmed:
+                args["database"].delete(active_id)
+                delete_solve_confirmed = False
+            curses.curs_set(0)
+            delete_active_solve = False
 
 
 class Tab:
@@ -237,8 +271,7 @@ class Tabs:
         "timer": Tab("Timer", timer, 0),
         "solves": Tab("Solves", solves, 1),
         "chart": Tab("Chart", chart, 2),
-        "algorithms": Tab("Algorithms", algorithms, 3)
-    }
+        "algorithms": Tab("Algorithms", algorithms, 3)}
 
     def __init__(self, win, color, color_active):
         self.win = win
@@ -253,8 +286,7 @@ class Tabs:
                 int(tab.index * self.width / 4) +
                 int(((self.width / 4) - len(tab.name)) / 2),
                 tab.name,
-                self.color_active if key == active else self.color
-            )
+                self.color_active if key == active else self.color)
         self.win.refresh()
 
     def switch_to(self, tab, mainwin, args={}):
@@ -265,6 +297,8 @@ class Tabs:
 
 
 def main(stdscr):
+    curses.curs_set(0)
+
     from db import Database
     database = Database()
     database.new_session()
@@ -316,20 +350,16 @@ def main(stdscr):
             tabs.switch_to("timer", mainwin, args={
                 "cover": False,
                 "decimals": 3,
-                "database": database
-            })
+                "database": database})
         elif key == curses.KEY_F2:
             tabs.switch_to("solves", mainwin, args={
-                "database": database
-            })
+                "database": database})
         elif key == curses.KEY_F3:
             tabs.switch_to("chart", mainwin, args={
-                "database": database
-            })
+                "database": database})
         elif key == curses.KEY_F4:
             tabs.switch_to("algorithms", mainwin, args={
-                "algorithm_positions": algorithm_positions
-            })
+                "algorithm_positions": algorithm_positions})
 
 
 try:
