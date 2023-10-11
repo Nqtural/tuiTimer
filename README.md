@@ -1,7 +1,7 @@
 # tuiTimer
 tuiTimer is a speedcubing timer inspired by csTimer but in a TUI.
 
-**THIS PROJECT IS IN VERY EARLY BETA AND THERE WILL PROBABLY BE MANY BUGS**
+**THIS PROJECT IS IN EARLY BETA AND THERE WILL PROBABLY BE MANY BUGS**
 
 ## Installation
 ```
@@ -11,7 +11,7 @@ python main.py
 ```
 
 ## Configuration
-Currently, there are no ways of configuring this program. There will be configuration options later.
+Edit `config.py` to configure tuiTimer. All parameters must be set if the file exists.
 
 ## Usage
 ### General
