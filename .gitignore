@@ -1,7 +1,10 @@
 pyvenv.cfg
 lib/
-lib64/
+lib64
 include/
 bin/
 __pycache__/
 sessions/
+bin/python
+bin/python3
+bin/python3.11
