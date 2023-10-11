@@ -57,6 +57,11 @@ def timer(stdscr, args):
         if not scramble_alg: 
             scramble_alg = scramble(20)
         stdscr.addstr(int(height / 2) + 1, int((width - len(scramble_alg)) / 2), scramble_alg)
+
+        last_five = [solve[2] for solve in database.read(5)]
+        if len(last_five) >= 5:
+            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(last_five) / 5, decimals).replace('   ', '')}")
+
         stdscr.refresh()
 
         with keyboard.Listener(
