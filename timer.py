@@ -14,8 +14,7 @@ timer_time = 0
 def turn_timer_green(time, stdscr, timer, decimals, height, width):
     global stop_thread
     for i in range(0, 5):
-        if stop_thread:
-            break
+        if stop_thread: break
         time.sleep(0.1)
     stdscr.clear()
     stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals))) / 2), format_timer(timer_time, decimals), curses.color_pair(4))
@@ -42,9 +41,6 @@ def timer(stdscr, args):
     cover = args["cover"]
     decimals = args["decimals"]
     database = args["database"]
-
-    curses.curs_set(0)
-    curses.noecho()
 
     height, width = stdscr.getmaxyx()
 

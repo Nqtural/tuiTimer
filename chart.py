@@ -16,17 +16,11 @@ def build_chart(values, values_index, aofive, trend_builder):
     plotext.plot(
         values_index,
         trend_builder(values_index),
-        # label="Trend",
-        marker="braille",
-        # color=theme.trend
-    )
+        marker="braille")
     plotext.plot(
         values_index,
         values,
-        # label="Solves",
-        marker="fhd",
-        # color=theme.solve
-    )
+        marker="fhd")
     return plotext.build()
 
 
