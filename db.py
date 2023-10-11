@@ -23,10 +23,10 @@ class Database:
         self.cur = self.con.cursor()
 
         # Create table for storing solves
-        self.cur.execute("CREATE TABLE IF NOT EXISTS solves (date, time, scramble);")
+        self.cur.execute("CREATE TABLE IF NOT EXISTS solves (date, time, scramble, plustwo);")
 
-    def write(self, time, scramble):
-        self.cur.execute("INSERT INTO solves VALUES (?, ?, ?)", (self.get_date(), time, scramble))
+    def write(self, time, scramble, plustwo=False):
+        self.cur.execute("INSERT INTO solves VALUES (?, ?, ?, ?)", (self.get_date(), time, scramble, plustwo))
         self.con.commit()
 
     def read(self, last=15):
