@@ -1,3 +1,7 @@
+# CREDIT: alexcoplan wrote this in javascript:
+# (https://github.com/alexcoplan/scrambler),
+# I just translated it to python.
+
 import random
 
 def choose(arr):
@@ -10,8 +14,7 @@ def scramble(length):
     for plane in planes:
         sides = planes[plane]
         for i in range(len(sides)):
-            side = sides[i]
-            planeMap[side] = plane
+            planeMap[sides[i]] = plane
     sides = ['F', 'B', 'R', 'L', 'U', 'D']
     modifiers = ['2', '\'', '']
     weakBuffer = []
