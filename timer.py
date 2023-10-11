@@ -58,9 +58,16 @@ def timer(stdscr, args):
             scramble_alg = scramble(20)
         stdscr.addstr(int(height / 2) + 1, int((width - len(scramble_alg)) / 2), scramble_alg)
 
-        last_five = [solve[2] for solve in database.read(5)]
-        if len(last_five) >= 5:
-            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(last_five) / 5, decimals).replace('   ', '')}")
+        solves = [solve[2] for solve in database.read(-1)]
+        if len(solves) >= 5:
+            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(solves[:-5]) / 5, decimals).replace('   ', '')}")
+
+        if len(solves) > 0:
+            session_best = min(solves)
+            stdscr.addstr(
+                height - 1,
+                width - 1 - len(f"Session best: {format_timer(session_best, decimals).replace('   ', '')}"),
+                f"Session best: {format_timer(session_best, decimals).replace('   ', '')}")
 
         stdscr.refresh()
 
