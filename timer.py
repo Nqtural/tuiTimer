@@ -97,13 +97,13 @@ def timer(stdscr, args):
 
         if cover:
             stdscr.clear()
-            stdscr.addstr(int(height / 2) - 1, int((width - len(format_timer(timer_time, decimals)))) / 2, "Solve")
+            stdscr.addstr(int(height / 2) - 1, int((width - len("Solve")) / 2), "Solve")
             stdscr.refresh()
 
         else:
             stdscr.clear()
             while listener.is_alive():
-                timer_time = int(1000 * (time.time() - start)) / 1000
+                timer_time = time.time() - start
                 stdscr.addstr(
                     int(height / 2) - 1,
                     int((width - len(format_timer(timer_time, decimals))) / 2),
@@ -113,7 +113,8 @@ def timer(stdscr, args):
 
         listener.join()
 
-        database.write(f"{(time.time() - start):.3f}", scramble_alg)
+        timer_time = time.time() - start
+        database.write(f"{timer_time:.3f}", scramble_alg)
         scramble_alg = False
 
 
