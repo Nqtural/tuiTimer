@@ -40,7 +40,7 @@ class Database:
         self.cur.execute("SELECT * FROM solves WHERE id = ?", id)
         self.cur.execute(
             "UPDATE solves SET plustwo = ? WHERE id = ?",
-            (self.cur.fetchone() == False, id)
+            (self.cur.fetchone() == False, id))
 
     def read(self, last=15):
         self.cur.execute("SELECT * FROM solves")
