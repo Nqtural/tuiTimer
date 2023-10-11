@@ -341,9 +341,15 @@ class Tabs:
 def main(stdscr):
     curses.curs_set(0)
 
+    from parser import parse_args
+    args = parse_args()
+
     from db import Database
     database = Database()
-    database.new_session()
+    if args.session:
+        database.connect(args.session)
+    else:
+        database.new_session()
 
     stdscr.refresh()
 
