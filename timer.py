@@ -1,4 +1,6 @@
 import curses
+import threading
+import time
 from scramble import scramble
 from pynput import keyboard
 
