@@ -60,7 +60,7 @@ def timer(stdscr, args):
 
         solves = [solve[2] for solve in database.read(-1)]
         if len(solves) >= 5:
-            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(solves[:-5]) / 5, decimals).replace('   ', '')}")
+            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(solves[-5:]) / 5, decimals).replace('   ', '')}")
 
         if len(solves) > 0:
             session_best = min(solves)
