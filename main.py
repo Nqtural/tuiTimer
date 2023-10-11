@@ -12,6 +12,8 @@ from db import Database
 scramble_alg = None
 stop_algorithm_listener = False
 algorithm_page = ["OLL", "Awkward Shape"]
+last_oll_page = "Awkward Shape"
+last_pll_page = "Adjacent Corner Swap"
 
 
 def replace_color_codes(input_string):
@@ -103,10 +105,15 @@ def print_algorithm(mainwin, y, x, name, icon, algorithm):
 def switch_algorithm_page(key):
     global algorithm_page
     if key == keyboard.Key.space or key == keyboard.Key.down or key == keyboard.Key.up:
+        last_page = algorithm_page[1]
+        global last_pll_page
+        global last_oll_page
         if algorithm_page[0] == "OLL":
-            algorithm_page = ["PLL", "Adjacent Corner Swap"]
+            algorithm_page = ["PLL", last_pll_page]
+            last_oll_page = last_page
         else:
-            algorithm_page = ["OLL", "Awkward Shape"]
+            algorithm_page = ["OLL", last_oll_page]
+            last_pll_page = last_page
         return False
     elif key == keyboard.Key.right:
         try:
