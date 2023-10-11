@@ -1,6 +1,6 @@
 import curses
 from scramble import scramble
-
+from pynput import keyboard
 
 stop_thread = False
 stop_timer = False
@@ -20,7 +20,7 @@ def turn_timer_green(time, stdscr, timer, decimals, height, width):
     stdscr.refresh()
 
 
-def listen_for_space(key, keyboard):
+def listen_for_space(key):
     if key == keyboard.Key.space:
         return False
     if key == keyboard.Key.f2 or key == keyboard.Key.f3:
@@ -44,10 +44,6 @@ def timer(stdscr, args):
     curses.curs_set(0)
     curses.noecho()
 
-    import time
-    import threading
-    from pynput import keyboard
-
     height, width = stdscr.getmaxyx()
 
     global scramble_alg
@@ -66,7 +62,7 @@ def timer(stdscr, args):
         stdscr.refresh()
 
         with keyboard.Listener(
-            on_press=lambda key: listen_for_space(key, keyboard)) as listener:
+            on_press=listen_for_space) as listener:
             listener.join()
 
         if stop_timer: break
@@ -79,7 +75,7 @@ def timer(stdscr, args):
         thread.start()
 
         with keyboard.Listener(
-            on_release=lambda key: listen_for_space(key, keyboard)) as listener:
+            on_release=listen_for_space) as listener:
             listener.join()
 
         if stop_timer: break
@@ -96,7 +92,7 @@ def timer(stdscr, args):
         start = time.time()
 
         listener = keyboard.Listener(
-            on_press=lambda key: listen_for_space(key, keyboard))
+            on_press=listen_for_space)
         listener.start()
 
         if stop_timer: break
