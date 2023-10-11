@@ -15,19 +15,32 @@ class Database:
         # session name
         date = self.get_date()[:8]
         i = 0
-        while os.path.exists(f"{sessions_dir}/{date}-{i}.db"):
-            i+=1
+        while os.path.exists(f"{sessions_dir}/{date}-{i}.db"): i+=1
         
         # Connect to database
         self.con = self.sqlite3.connect(f"{sessions_dir}/{date}-{i}.db")
         self.cur = self.con.cursor()
 
         # Create table for storing solves
-        self.cur.execute("CREATE TABLE IF NOT EXISTS solves (date, time, scramble, plustwo);")
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS solves (
+            id INTEGER PRIMARY KEY,
+            date,
+            time,
+            scramble,
+            plustwo);""")
 
     def write(self, time, scramble, plustwo=False):
-        self.cur.execute("INSERT INTO solves VALUES (?, ?, ?, ?)", (self.get_date(), time, scramble, plustwo))
+        if plustwo: time =+ 2
+        self.cur.execute(
+            "INSERT INTO solves (id) VALUES (?, ?, ?, ?)",
+            (self.get_date(), time, scramble, plustwo))
         self.con.commit()
+
+    def toggle_plustwo(self, id):
+        self.cur.execute("SELECT * FROM solves WHERE id = ?", id)
+        self.cur.execute(
+            "UPDATE solves SET plustwo = ? WHERE id = ?",
+            (self.cur.fetchone() == False, id)
 
     def read(self, last=15):
         self.cur.execute("SELECT * FROM solves")
