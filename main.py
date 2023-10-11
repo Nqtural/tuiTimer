@@ -11,6 +11,9 @@ from db import Database
 
 scramble_alg = None
 stop_algorithm_listener = False
+stop_solve_listener = False
+toggle_plustwo_bool = False
+active_solve = 0
 algorithm_page = ["OLL", "Awkward Shape"]
 last_oll_page = "Awkward Shape"
 last_pll_page = "Adjacent Corner Swap"
@@ -24,7 +27,7 @@ def replace_color_codes(input_string):
 def chart(mainwin, args):
     height, width = mainwin.getmaxyx()
     graph = replace_color_codes(get_chart(
-        [float(solve[1]) for solve in args["database"].read()],
+        [float(solve[2]) for solve in args["database"].read()],
         height-1,
         width-1))
     mainwin.addstr(
@@ -67,17 +70,17 @@ def replace_icon(icon):
     # string = icon[0].replace("v", "▒▒").replace(">", "▒▒").replace("f", "██").replace("<", "▒▒").replace("^", "▒▒")
     color = curses.color_pair(1)
     if icon[1] == "b":
-        color = curses.color_pair(5)
+        color = curses.color_pair(6)
     elif icon[1] == "y":
-        color = curses.color_pair(6) | curses.A_BOLD
-    elif icon[1] == "g":
         color = curses.color_pair(7)
-    elif icon[1] == "B":
+    elif icon[1] == "g":
         color = curses.color_pair(8)
-    elif icon[1] == "o":
+    elif icon[1] == "B":
         color = curses.color_pair(9)
-    elif icon[1] == "r":
+    elif icon[1] == "o":
         color = curses.color_pair(10)
+    elif icon[1] == "r":
+        color = curses.color_pair(11)
 
     return (string, color)
 
@@ -147,12 +150,79 @@ def algorithms(mainwin, args):
             on_press=switch_algorithm_page) as listener:
             listener.join()
         
-        if stop_algorithm_listener:
-            break
+        if stop_algorithm_listener: break
+
+
+def solve_keybinds(key):
+    global active_solve
+    try:
+        if key.char == "+":
+            global toggle_plustwo_bool
+            toggle_plustwo_bool = True
+            return False
+        elif key.char == "j":
+            active_solve += 1
+            return False
+        elif key.char == "k":
+            active_solve += -1
+            return False
+    except AttributeError:
+        if key == keyboard.Key.f1 or key == keyboard.Key.f3 or key == keyboard.Key.f4:
+            global stop_solve_listener
+            stop_solve_listener = True
+            return False
+        elif key == keyboard.Key.down:
+            active_solve += 1
+            return False
+        elif key == keyboard.Key.up:
+            active_solve += -1
+            return False
 
 
 def solves(mainwin, args):
-    pass
+    y, width = mainwin.getmaxyx()
+    x = [int(width / 4) * i for i in range(0, 3)] + [width]
+    global stop_solve_listener
+    global active_solve
+    stop_solve_listener = False
+    while True:
+        mainwin.clear()
+        solves = args["database"].read(last=-1)
+        if active_solve == -1:
+            active_solve = len(solves) - 1
+        elif active_solve >= len(solves):
+            active_solve = 0
+        mainwin.addstr(1, x[0], "Date", curses.A_BOLD)
+        mainwin.addstr(1, x[1], "Time", curses.A_BOLD)
+        mainwin.addstr(1, x[2], "+2", curses.A_BOLD)
+        mainwin.addstr(1, x[3] - len("Scramble"), "Scramble", curses.A_BOLD)
+        for i, solve in enumerate(solves[::-1]):
+            if i == active_solve:
+                mainwin.addstr(i + 2, 0, " " * width, curses.color_pair(5))
+                active_id = solve[0]
+            mainwin.addstr(
+                i + 2, x[0], str(solve[1]),
+                curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
+            mainwin.addstr(
+                i + 2, x[1], f"{solve[2]:.3f}",
+                curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
+            mainwin.addstr(
+                i + 2, x[2], "Yes" if solve[4] else "No",
+                curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
+            mainwin.addstr(
+                i + 2, x[3] - len(solve[3]), solve[3],
+                curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
+        mainwin.refresh()
+        with keyboard.Listener(
+            on_press=solve_keybinds) as listener:
+            listener.join()
+
+        if stop_solve_listener: break
+
+        global toggle_plustwo_bool
+        if toggle_plustwo_bool:
+            args["database"].toggle_plustwo(active_id)
+            toggle_plustwo_bool = False
 
 
 class Tab:
@@ -209,20 +279,22 @@ def main(stdscr):
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
     # Timer ready
     curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    # Active solve
+    curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_CYAN)
 
     # Cube color
     # Black
-    curses.init_pair(5, 244, curses.COLOR_BLACK)
+    curses.init_pair(6, 244, curses.COLOR_BLACK)
     # Yellow
-    curses.init_pair(6, 226, curses.COLOR_BLACK)
+    curses.init_pair(7, 226, curses.COLOR_BLACK)
     # Green
-    curses.init_pair(7, 46, curses.COLOR_BLACK)
+    curses.init_pair(8, 46, curses.COLOR_BLACK)
     # Blue
-    curses.init_pair(8, 21, curses.COLOR_BLACK)
+    curses.init_pair(9, 21, curses.COLOR_BLACK)
     # Orange
-    curses.init_pair(9, 172, curses.COLOR_BLACK)
+    curses.init_pair(10, 172, curses.COLOR_BLACK)
     # Red
-    curses.init_pair(10, 196, curses.COLOR_BLACK)
+    curses.init_pair(11, 196, curses.COLOR_BLACK)
 
     height, width = stdscr.getmaxyx()
 

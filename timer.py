@@ -117,7 +117,7 @@ def timer(stdscr, args):
 
         listener.join()
 
-        database.write(time.time() - start, scramble_alg)
+        database.write(f"{(time.time() - start):.3f}", scramble_alg)
         scramble_alg = False
 
 
