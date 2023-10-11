@@ -25,7 +25,7 @@ def turn_timer_green(time, stdscr, timer, decimals, height, width):
 def listen_for_space(key):
     if key == keyboard.Key.space:
         return False
-    if key == keyboard.Key.f2 or key == keyboard.Key.f3:
+    if key == keyboard.Key.f2 or key == keyboard.Key.f3 or key == keyboard.Key.f4:
         global stop_timer
         stop_timer = True
         return False

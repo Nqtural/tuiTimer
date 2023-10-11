@@ -117,7 +117,7 @@ def switch_algorithm_page(key):
     elif key == keyboard.Key.left:
         algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[list(algorithms_map[algorithm_page[0]].keys()).index(algorithm_page[1]) - 1]]
         return False
-    elif key == keyboard.Key.f1 or key == keyboard.Key.f2:
+    elif key == keyboard.Key.f1 or key == keyboard.Key.f2 or key == keyboard.Key.f3:
         global stop_algorithm_listener
         stop_algorithm_listener = True
         return False
@@ -144,6 +144,10 @@ def algorithms(mainwin, args):
             break
 
 
+def solves(mainwin, args):
+    pass
+
+
 class Tab:
     def __init__(self, name, function, index):
         self.name = name
@@ -154,8 +158,9 @@ class Tab:
 class Tabs:
     tabs = {
         "timer": Tab("Timer", timer, 0),
-        "chart": Tab("Chart", chart, 1),
-        "algorithms": Tab("Algorithms", algorithms, 2)
+        "solves": Tab("Solves", solves, 1),
+        "chart": Tab("Chart", chart, 2),
+        "algorithms": Tab("Algorithms", algorithms, 3)
     }
 
     def __init__(self, win, color, color_active):
@@ -168,8 +173,8 @@ class Tabs:
         for key, tab in self.tabs.items():
             self.win.addstr(
                 0,
-                int(tab.index * self.width / 3) +
-                int(((self.width / 3) - len(tab.name)) / 2),
+                int(tab.index * self.width / 4) +
+                int(((self.width / 4) - len(tab.name)) / 2),
                 tab.name,
                 self.color_active if key == active else self.color
             )
@@ -235,15 +240,17 @@ def main(stdscr):
                 "database": database
             })
         elif key == curses.KEY_F2:
-            tabs.switch_to("chart", mainwin, args={
+            tabs.switch_to("solves", mainwin, args={
                 "database": database
             })
         elif key == curses.KEY_F3:
+            tabs.switch_to("chart", mainwin, args={
+                "database": database
+            })
+        elif key == curses.KEY_F4:
             tabs.switch_to("algorithms", mainwin, args={
                 "algorithm_positions": algorithm_positions
             })
-        elif key == ord('q'):
-            return
 
 
 try:
