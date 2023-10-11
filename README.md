@@ -17,3 +17,4 @@ Currently, there are no ways of configuring this program. There will be configur
 * `F1`, `F2`, `F3` for switching tabs.
 * Hold `space` in the timer tab until timer turns green and then release to start timer. Stop by pressing `space` again.
 * Press `ctrl` + `c` to exit
+* Arrow keys `left` and `right` switches to the previous and next algorithm page respectively. `space` and arrow keys `up` and `down` switches between OLL and PLL algorithms.

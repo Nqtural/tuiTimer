@@ -1,14 +1,17 @@
 import curses
 import time
+import threading
+import re
 from pynput import keyboard
 from chart import get_chart
 from timer import timer
+from algorithms import algorithms_map
 from db import Database
-import threading
-import re
 
 
 scramble_alg = None
+stop_algorithm_listener = False
+algorithm_page = ["OLL", "Awkward Shape"]
 
 
 def replace_color_codes(input_string):
@@ -29,8 +32,116 @@ def chart(mainwin, args):
     mainwin.refresh()
 
 
+def get_algorithm_positions(height, width):
+    # 3x3
+    # if int(width / 3) > 67:
+    return [
+        (int(height / 4) - 3, 0),
+        (int(height / 4) - 3, int(width / 3)),
+        (int(height / 4) - 3, int(width * 2 / 3)),
+        (int(height * 2 / 4) - 3, 0),
+        (int(height * 2 / 4) - 3, int(width / 3)),
+        (int(height * 2 / 4) - 3, int(width * 2 / 3)),
+        (int(height * 3 / 4) - 3, 0),
+        (int(height * 3 / 4) - 3, int(width / 3)),
+        (int(height * 3 / 4) - 3, int(width * 2 / 3))
+    ]
+    # 2x4
+    # else:
+    #    return [
+    #         (int(height / 5) - 3, 0),
+    #         (int(height / 5) - 3, int(width / 2)),
+    #         (int(height * 2 / 5) - 3, 0),
+    #         (int(height * 2 / 5) - 3, int(width / 2)),
+    #         (int(height * 3 / 5) - 3, 0),
+    #         (int(height * 3 / 5) - 3, int(width / 2)),
+    #         (int(height * 4 / 5) - 3, 0),
+    #         (int(height * 4 / 5) - 3, int(width / 2)),
+    #     ]
+
+
+def replace_icon(icon):
+    string = icon[0].replace("v", "▄▄").replace(">", " █").replace("f", "██").replace("<", "█ ").replace("^", "▀▀")
+    # string = icon[0].replace("v", "▒▒").replace(">", "▒▒").replace("f", "██").replace("<", "▒▒").replace("^", "▒▒")
+    color = curses.color_pair(1)
+    if icon[1] == "b":
+        color = curses.color_pair(5)
+    elif icon[1] == "y":
+        color = curses.color_pair(6) | curses.A_BOLD
+    elif icon[1] == "g":
+        color = curses.color_pair(7)
+    elif icon[1] == "B":
+        color = curses.color_pair(8)
+    elif icon[1] == "o":
+        color = curses.color_pair(9)
+    elif icon[1] == "r":
+        color = curses.color_pair(10)
+
+    return (string, color)
+
+
+def print_icon(mainwin, y, x, icon):
+    for i in range(0, int(len(icon) / 2)):
+        mainwin.addstr(y, x + (i * 2), *replace_icon(icon[i * 2:(i + 1) * 2]))
+
+
+def print_algorithm(mainwin, y, x, name, icon, algorithm):
+    # Line 1:
+    print_icon(mainwin, y, x, icon[0])
+    # Line 2:
+    print_icon(mainwin, y + 1, x, icon[1])
+    mainwin.addstr(y + 1, x + 12, name + ":")
+    # Line 3:
+    print_icon(mainwin, y + 2, x, icon[2])
+    # Line 4:
+    print_icon(mainwin, y + 3, x, icon[3])
+    mainwin.addstr(y + 3, x + 12, algorithm)
+    # Line 5:
+    print_icon(mainwin, y + 4, x, icon[4])
+
+
+def switch_algorithm_page(key):
+    global algorithm_page
+    if key == keyboard.Key.space or key == keyboard.Key.down or key == keyboard.Key.up:
+        if algorithm_page[0] == "OLL":
+            algorithm_page = ["PLL", "Adjacent Corner Swap"]
+        else:
+            algorithm_page = ["OLL", "Awkward Shape"]
+        return False
+    elif key == keyboard.Key.right:
+        try:
+            algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[list(algorithms_map[algorithm_page[0]].keys()).index(algorithm_page[1]) + 1]]
+        except IndexError:
+            algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[0]]
+        return False
+    elif key == keyboard.Key.left:
+        algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[list(algorithms_map[algorithm_page[0]].keys()).index(algorithm_page[1]) - 1]]
+        return False
+    elif key == keyboard.Key.f1 or key == keyboard.Key.f2:
+        global stop_algorithm_listener
+        stop_algorithm_listener = True
+        return False
+
+
 def algorithms(mainwin, args):
-    pass
+    global stop_algorithm_listener
+    global algorithm_page
+    global stop_algorithm_listener
+    stop_algorithm_listener = False
+    while True:
+        mainwin.clear()
+        title = f"{algorithm_page[0]}: {algorithm_page[1]}"
+        width = mainwin.getmaxyx()[1]
+        mainwin.addstr(2, int((width - len(title)) / 2), title)
+        for i, item in enumerate(algorithms_map[algorithm_page[0]][algorithm_page[1]].items()):
+            print_algorithm(mainwin, *args["algorithm_positions"][i], item[0], item[1]["icon"], item[1]["algorithm"])
+        mainwin.refresh()
+        with keyboard.Listener(
+            on_press=switch_algorithm_page) as listener:
+            listener.join()
+        
+        if stop_algorithm_listener:
+            break
 
 
 class Tab:
@@ -81,17 +192,33 @@ def main(stdscr):
     # Normal
     curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
     # Tab active
-    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_RED)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     # Timer primed
     curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
     # Timer ready
     curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
+    # Cube color
+    # Black
+    curses.init_pair(5, 244, curses.COLOR_BLACK)
+    # Yellow
+    curses.init_pair(6, 226, curses.COLOR_BLACK)
+    # Green
+    curses.init_pair(7, 46, curses.COLOR_BLACK)
+    # Blue
+    curses.init_pair(8, 21, curses.COLOR_BLACK)
+    # Orange
+    curses.init_pair(9, 172, curses.COLOR_BLACK)
+    # Red
+    curses.init_pair(10, 196, curses.COLOR_BLACK)
+
     height, width = stdscr.getmaxyx()
 
-    tabs = Tabs(curses.newwin(1, width, 0, 0), curses.color_pair(1), curses.color_pair(2))
+    tabs = Tabs(curses.newwin(1, width, 0, 0), curses.color_pair(1), curses.color_pair(2) | curses.A_UNDERLINE)
 
     mainwin = curses.newwin(height - 1, width, 1, 0)
+
+    algorithm_positions = get_algorithm_positions(*mainwin.getmaxyx())
 
     mainwin.refresh()
     tabs.switch_to("timer", mainwin, args={
@@ -112,7 +239,9 @@ def main(stdscr):
                 "database": database
             })
         elif key == curses.KEY_F3:
-            tabs.switch_to("algorithms", mainwin)
+            tabs.switch_to("algorithms", mainwin, args={
+                "algorithm_positions": algorithm_positions
+            })
         elif key == ord('q'):
             return
 
