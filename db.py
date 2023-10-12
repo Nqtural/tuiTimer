@@ -45,12 +45,12 @@ class Database:
     def toggle_plustwo(self, id):
         self.cur.execute("SELECT time, plustwo FROM solves WHERE id = ?", (id,))
         time, plustwo = self.cur.fetchone()
-        print(plustwo)
         self.cur.execute(
             "UPDATE solves SET plustwo = ?, time = ? WHERE id = ?",
             (plustwo == False,
              time - 2 if plustwo else time + 2,
              id))
+        self.con.commit()
 
     def read(self, last=15):
         self.cur.execute("SELECT * FROM solves")
