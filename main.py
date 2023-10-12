@@ -42,6 +42,7 @@ scramble_alg = None
 stop_algorithm_listener = False
 stop_solve_listener = False
 toggle_plustwo_bool = False
+toggle_dnf_bool = False
 delete_active_solve = False
 delete_solve_confirmed = False
 active_solve = 0
@@ -58,7 +59,7 @@ def replace_color_codes(input_string):
 def chart(mainwin, args):
     height, width = mainwin.getmaxyx()
     graph = replace_color_codes(get_chart(
-        [float(solve[2]) for solve in args["database"].read()],
+        [float(solve[2]) for solve in args["database"].read() if not solve[5]][-15:],
         height-1,
         width-1))
     mainwin.addstr(
@@ -191,6 +192,10 @@ def solve_keybinds(key):
             global toggle_plustwo_bool
             toggle_plustwo_bool = True
             return False
+        elif key.char == "d":
+            global toggle_dnf_bool
+            toggle_dnf_bool = True
+            return False
         elif key.char == "j":
             active_solve += 1
             return False
@@ -264,7 +269,7 @@ def solves(mainwin, args):
                 i + 2, x[0], format_date(str(solve[1])),
                 curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
             mainwin.addstr(
-                i + 2, x[1], format_timer(solve[2], args["decimals"]),
+                i + 2, x[1], "DNF" if solve[5] else format_timer(solve[2], args["decimals"], padding=False),
                 curses.color_pair(5) | curses.A_BOLD if i == active_solve else curses.color_pair(1))
             mainwin.addstr(
                 i + 2, x[2], "Yes" if solve[4] else "No",
@@ -280,11 +285,15 @@ def solves(mainwin, args):
         if stop_solve_listener: break
 
         global toggle_plustwo_bool
-        if toggle_plustwo_bool:
-            try:
+        global toggle_dnf_bool
+        try:
+            if toggle_plustwo_bool:
                 args["database"].toggle_plustwo(active_id)
-            except UnboundLocalError: pass # There are no solves in current session
-            toggle_plustwo_bool = False
+            if toggle_dnf_bool:
+                args["database"].toggle_dnf(active_id)
+        except UnboundLocalError: pass # There are no solves in current session
+        toggle_plustwo_bool = False
+        toggle_dnf_bool = False
 
         global delete_active_solve
         if delete_active_solve and solves:

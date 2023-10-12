@@ -33,13 +33,14 @@ class Database:
             date,
             time,
             scramble,
-            plustwo);""")
+            plustwo,
+            dnf);""")
 
-    def write(self, time, scramble, plustwo=False):
+    def write(self, time, scramble, plustwo=False, dnf=False):
         time = float(time) + 2 if plustwo else float(time)
         self.cur.execute(
-            "INSERT INTO solves (date, time, scramble, plustwo) VALUES (?, ?, ?, ?)",
-            (self.get_date(), time, scramble, plustwo))
+            "INSERT INTO solves (date, time, scramble, plustwo, dnf) VALUES (?, ?, ?, ?, ?)",
+            (self.get_date(), time, scramble, plustwo, dnf))
         self.con.commit()
 
     def toggle_plustwo(self, id):
@@ -52,7 +53,15 @@ class Database:
              id))
         self.con.commit()
 
-    def read(self, last=15):
+    def toggle_dnf(self, id):
+        self.cur.execute("SELECT dnf FROM solves WHERE id = ?", (id,))
+        dnf = self.cur.fetchone()[0]
+        self.cur.execute(
+            "UPDATE solves SET dnf = ? WHERE id = ?",
+            (dnf == False, id))
+        self.con.commit()
+
+    def read(self, last=-1):
         self.cur.execute("SELECT * FROM solves")
         if last > 0:
             return self.cur.fetchall()[-last:]

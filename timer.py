@@ -30,11 +30,13 @@ def listen_for_space(key):
         return False
 
 
-def format_timer(timer_time, decimals):
+def format_timer(timer_time, decimals, padding=True):
     if timer_time / 60 > 1: # Show minutes
-        return f"   {int(timer_time / 60)}:{'' if timer_time % 60 > 10 else '0'}{(timer_time % 60):.{decimals}f}   "
+        timer_value = f"{int(timer_time / 60)}:{'' if timer_time % 60 > 10 else '0'}{(timer_time % 60):.{decimals}f}"
+        return f"   {timer_value}   " if padding else timer_value
     else: # Don't show minutes
-        return f"   {timer_time:.{decimals}f}   "
+        timer_value = f"{timer_time:.{decimals}f}"
+        return f"   {timer_value}   " if padding else timer_value
 
 
 def timer(stdscr, args):
@@ -58,16 +60,16 @@ def timer(stdscr, args):
             scramble_alg = scramble(20)
         stdscr.addstr(int(height / 2) + 1, int((width - len(scramble_alg)) / 2), scramble_alg)
 
-        solves = [solve[2] for solve in database.read(-1)]
+        solves = [float(solve[2]) for solve in args["database"].read() if not solve[5]]
         if len(solves) >= 5:
-            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(solves[-5:]) / 5, decimals).replace('   ', '')}")
+            stdscr.addstr(height - 1, 0, f"Ao5: {format_timer(sum(solves[-5:]) / 5, decimals, padding=False)}")
 
         if len(solves) > 0:
             session_best = min(solves)
             stdscr.addstr(
                 height - 1,
-                width - 1 - len(f"Session best: {format_timer(session_best, decimals).replace('   ', '')}"),
-                f"Session best: {format_timer(session_best, decimals).replace('   ', '')}")
+                width - 1 - len(f"Session best: {format_timer(session_best, decimals, padding=False)}"),
+                f"Session best: {format_timer(session_best, decimals, padding=False)}")
 
         stdscr.refresh()
 
