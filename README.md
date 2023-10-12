@@ -27,3 +27,4 @@ Run with flag `-s [PATH]` or `--session [PATH]` to resume a previous session.
 * `delete` and `backspace` will prompt you to delete the active solve. `y` confirms deletion.
 #### Algorithms
 * Arrow keys `left` and `right` switches to the previous and next algorithm page respectively. `space` and arrow keys `up` and `down` switches between OLL and PLL algorithms.
+* `home` will take you to the first algorithm page.

@@ -159,6 +159,9 @@ def switch_algorithm_page(key):
     elif key == keyboard.Key.left:
         algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[list(algorithms_map[algorithm_page[0]].keys()).index(algorithm_page[1]) - 1]]
         return False
+    elif key == keyboard.Key.home:
+        algorithm_page = [algorithm_page[0], list(algorithms_map[algorithm_page[0]].keys())[0]]
+        return False
     elif key == keyboard.Key.f1 or key == keyboard.Key.f2 or key == keyboard.Key.f3:
         global stop_algorithm_listener
         stop_algorithm_listener = True
