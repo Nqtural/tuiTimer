@@ -16,7 +16,7 @@ class Database:
     def new_session(self, sessions_dir="sessions"):
         # Make sessions directory if it does not already exist
         if not self.os.path.exists(sessions_dir):
-            os.makedirs(sessions_dir)
+            self.os.makedirs(sessions_dir)
 
         # Make sure to not overwrite another session by creating a unique
         # session name
